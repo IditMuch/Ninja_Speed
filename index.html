@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>נינג'ה טיימר – דו-קרב ספיד</title>
+  <style>
+    :root {
+      --bg: #07090f;
+      --surface: #0e1320;
+      --surface-2: #151c2e;
+      --surface-3: #1d2842;
+      --border: #2a3756;
+      --border-subtle: #192238;
+      --text: #f4f7fd;
+      --text-muted: #93a3c2;
+      --accent: #ff6a00;
+      --accent-soft: rgba(255, 106, 0, 0.15);
+      --accent-border: rgba(255, 106, 0, 0.5);
+      --purple: #6e48ff;
+      --purple-hover: #5b34f5;
+      --green: #16a34a;
+      --green-bright: #22c55e;
+      --green-soft: rgba(34, 197, 94, 0.15);
+      --red: #dc2626;
+      --red-soft: rgba(239, 68, 68, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.16);
+      --gold: #fbbf24;
+      --silver: #cbd5e1;
+      --bronze: #d97706;
+      --disabled-bg: #273043;
+      --disabled-text: #7b879e;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Heebo", Arial, sans-serif;
+      min-height: 100vh;
+      direction: rtl;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 10px 10px 56px;
+      overflow-x: hidden;
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 9px 11px;
+      margin-bottom: 10px;
+      position: sticky;
+      top: 6px;
+      z-index: 30;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #ff7b1c, #e64800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(255, 106, 0, 0.35);
+    }
+
+    .brand-text-wrap {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 0.96rem;
+      font-weight: 900;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wakelock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: #4ade80;
+      margin-top: 2px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .wakelock-pill.off {
+      color: var(--text-muted);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+      flex-shrink: 0;
+    }
+
+    .wakelock-pill.off .dot {
+      background: #64748b;
+      box-shadow: none;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .stage-badge {
+      background: var(--accent-soft);
+      color: #ff984d;
+      border: 1px solid var(--accent-border);
+      font-weight: 800;
+      font-size: 0.76rem;
+      padding: 6px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .stage-badge.final-stage {
+      background: rgba(251, 191, 36, 0.18);
+      color: var(--gold);
+      border-color: rgba(251, 191, 36, 0.55);
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: #fca5a5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Stage Banner */
+    .stage-banner {
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.16), rgba(110, 72, 255, 0.14));
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+      margin-bottom: 10px;
+    }
+
+    .stage-banner.final-banner {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(255, 106, 0, 0.16));
+      border-color: rgba(251, 191, 36, 0.6);
+    }
+
+    .stage-banner-title {
+      font-weight: 900;
+      font-size: 0.96rem;
+      color: #fff;
+    }
+
+    .stage-banner-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      max-width: 100%;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 0.96rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    @media (min-width: 520px) {
+      .mode-toggle {
+        width: auto;
+      }
+    }
+
+    .mode-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.84rem;
+      padding: 9px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      min-height: 42px;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: var(--surface-3);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Fighter Inputs */
+    .fighters-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .fighters-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .fighters-grid.single-mode {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fighter-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .fighter-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .input-voice-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    @media (min-width: 420px) {
+      .input-voice-row {
+        flex-direction: row;
+        align-items: stretch;
+      }
+    }
+
+    .name-input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      min-height: 48px;
+      outline: none;
+    }
+
+    .name-input:focus {
+      border-color: var(--accent);
+    }
+
+    .name-input:disabled {
+      opacity: 0.65;
+      background: var(--surface-3);
+    }
+
+    .mic-btn {
+      border: none;
+      border-radius: 12px;
+      background: var(--purple);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.86rem;
+      padding: 0 13px;
+      min-height: 48px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .mic-btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .mic-btn.listening {
+      background: var(--red);
+      animation: pulseMic 1.1s infinite;
+    }
+
+    .mic-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    @keyframes pulseMic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); }
+      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
+
+    .quick-chips {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 11px;
+      min-height: 36px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .chip:active:not(:disabled) {
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .chip:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .validation-msg {
+      margin-top: 8px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fbbf24;
+      min-height: 18px;
+      line-height: 1.35;
+    }
+
+    /* Voice Dictation Fallback Modal */
+    .voice-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 5, 12, 0.82);
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .voice-modal-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--surface);
+      border: 1.5px solid var(--purple);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Stopwatch Box */
+    .stopwatch-panel {
+      background: #05070c;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      background: var(--amber-soft);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      margin-bottom: 8px;
+    }
+
+    .status-pill.running {
+      background: var(--green-soft);
+      color: #4ade80;
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    .status-pill.finished {
+      background: var(--accent-soft);
+      color: #ff984d;
+      border-color: var(--accent-border);
+    }
+
+    .clock-readout {
+      font-size: clamp(2.45rem, 12vw, 4.2rem);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1.5px;
+      color: var(--gold);
+      line-height: 1.08;
+      margin: 4px 0 12px;
+      text-shadow: 0 0 22px rgba(251, 191, 36, 0.18);
+    }
+
+    .split-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .split-preview.single {
+      grid-template-columns: 1fr;
+    }
+
+    .split-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 9px 8px;
+      min-width: 0;
+    }
+
+    .split-title {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .split-val {
+      font-size: clamp(1.05rem, 4.5vw, 1.35rem);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+      color: #fff;
+    }
+
+    .split-val.empty {
+      color: #475569;
+    }
+
+    /* Buttons */
+    .clock-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    @media (min-width: 480px) {
+      .clock-controls {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-weight: 900;
+      min-height: 50px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-start {
+      background: var(--green-bright);
+      color: #05200e;
+      font-size: 1.15rem;
+      padding: 15px 24px;
+      min-height: 54px;
+      box-shadow: 0 6px 18px rgba(34, 197, 94, 0.32);
+    }
+
+    .btn-start:disabled {
+      background: var(--disabled-bg);
+      color: var(--disabled-text);
+      box-shadow: none;
+      border: 1px solid #39455e;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    .btn-stop {
+      background: var(--red);
+      color: #fff;
+      font-size: 1.15rem;
+      padding: 15px 24px;
+      min-height: 54px;
+      box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+    }
+
+    .btn-restart {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-size: 0.94rem;
+      padding: 13px 16px;
+      min-height: 48px;
+    }
+
+    /* Approval & Interactive Slot Assignment */
+    .approval-card {
+      margin-top: 12px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--accent-border);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+    }
+
+    .approval-top-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-accept {
+      background: var(--green-bright);
+      color: #05200e;
+      font-size: 1rem;
+      padding: 13px 14px;
+      min-height: 50px;
+    }
+
+    .btn-cancel {
+      background: var(--surface-3);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      font-size: 1rem;
+      padding: 13px 14px;
+      min-height: 50px;
+    }
+
+    .assign-panel {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .assign-hint {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #fde68a;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .slots-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .time-slot-btn {
+      width: 100%;
+      text-align: right;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 13px;
+      padding: 11px;
+      color: var(--text);
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .time-slot-btn.active-slot {
+      border-color: var(--gold);
+      background: rgba(251, 191, 36, 0.14);
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.25);
+    }
+
+    .slot-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .time-slot-btn.active-slot .slot-top-row {
+      color: var(--gold);
+    }
+
+    .slot-time-val {
+      font-size: 1.25rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      margin: 4px 0;
+      color: #fff;
+    }
+
+    .slot-assigned-name {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #6ee7b7;
+    }
+
+    .fighter-assign-card {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .fighter-assign-head {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    @media (min-width: 500px) {
+      .fighter-assign-head {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .fighter-pick-btn {
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 10px 12px;
+      min-height: 46px;
+      border-radius: 11px;
+      cursor: pointer;
+      flex: 1;
+      text-align: right;
+      line-height: 1.3;
+    }
+
+    .fighter-pick-btn.assigned-active {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+    }
+
+    .status-choice-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    @media (min-width: 500px) {
+      .status-choice-group {
+        display: inline-flex;
+      }
+    }
+
+    .choice-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.86rem;
+      padding: 8px 12px;
+      min-height: 44px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .choice-btn.finish.active {
+      background: var(--green-bright);
+      color: #05200e;
+      border-color: var(--green-bright);
+    }
+
+    .choice-btn.dq.active {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .auto-winner-banner {
+      background: rgba(34, 197, 94, 0.14);
+      border: 1.5px solid rgba(34, 197, 94, 0.55);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+      margin-top: 8px;
+      color: #86efac;
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+
+    /* Stage Navigation */
+    .nav-stages-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-stage {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 10px;
+      min-height: 48px;
+      font-size: 0.9rem;
+    }
+
+    .btn-stage.finish-btn {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    /* Extra Round Config */
+    .extra-round-box {
+      margin-top: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .inline-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .small-num-input {
+      width: 80px;
+      min-height: 44px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .dq-pool-box {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Placement Summary Cards in Semi */
+    .placement-box {
+      margin-top: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .placement-line {
+      font-size: 0.88rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    /* Tables & Tabs */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 8px 12px;
+      min-height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #140800;
+      border-color: var(--accent);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      max-width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    th, td {
+      padding: 10px 9px;
+      text-align: right;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    th {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 0.76rem;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      font-weight: 900;
+      font-size: 0.8rem;
+      background: var(--surface-3);
+      color: #fff;
+    }
+
+    .rank-1 { background: var(--gold); color: #1b1202; }
+    .rank-2 { background: var(--silver); color: #0f172a; }
+    .rank-3 { background: var(--bronze); color: #fff; }
+
+    .tag-dq {
+      display: inline-block;
+      background: var(--red-soft);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .tag-ok {
+      display: inline-block;
+      background: var(--green-soft);
+      color: #6ee7b7;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .tag-win {
+      display: inline-block;
+      background: rgba(251, 191, 36, 0.18);
+      color: var(--gold);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px 12px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    /* Summary View */
+    .summary-header-box {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(255, 106, 0, 0.15));
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .summary-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 480px) {
+      .summary-actions {
+        grid-template-columns: 1fr auto;
+      }
+    }
+
+    .whatsapp-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 11px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      color: #dbeafe;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid var(--accent);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.84rem;
+      z-index: 99;
+      opacity: 0;
+      transition: all 0.24s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      max-width: calc(100vw - 24px);
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text-wrap">
+          <div class="brand-title">נינג'ה טיימר · דו-קרב</div>
+          <div id="wakelockStatus" class="wakelock-pill off">
+            <span class="dot"></span>
+            <span>מסך פעיל: כבוי</span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span id="stageBadge" class="stage-badge">מוקדמות 1</span>
+        <button id="resetAllBtn" class="icon-btn" title="איפוס תחרות מלא" aria-label="איפוס תחרות מלא">🗑️</button>
+      </div>
+    </header>
+
+    <!-- Main Arena View -->
+    <main id="arenaView">
+      <!-- Stage Banner -->
+      <div id="stageBanner" class="stage-banner">
+        <div id="stageBannerTitle" class="stage-banner-title">שלב מוקדמות – סבב 1</div>
+        <div id="stageBannerSub" class="stage-banner-sub">הזן 2 שמות, לחץ התחל, עצור פעמיים ואשר תוצאה.</div>
+      </div>
+
+      <!-- 1. Fighters Input -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">🥊 פרטי הדו-קרב</div>
+          <div class="mode-toggle" role="group" aria-label="מצב הזנקה">
+            <button id="modeDuelBtn" class="mode-btn active" type="button">דו-קרב (2)</button>
+            <button id="modeSingleBtn" class="mode-btn" type="button">מתאמן יחיד (1)</button>
+          </div>
+        </div>
+
+        <div id="fightersGrid" class="fighters-grid">
+          <div class="fighter-box">
+            <div class="fighter-label-row">
+              <span id="labelFighter1">ספורטאי 1</span>
+              <span style="font-size:0.74rem;color:#94a3b8;">חובה</span>
+            </div>
+            <div class="input-voice-row">
+              <input id="name1Input" class="name-input" type="text" placeholder="שם ספורטאי 1..." autocomplete="off" />
+              <button id="mic1Btn" class="mic-btn" type="button" data-target="1">🎤 הקלט שם</button>
+            </div>
+            <div id="chips1" class="quick-chips"></div>
+          </div>
+
+          <div id="fighter2Box" class="fighter-box">
+            <div class="fighter-label-row">
+              <span>ספורטאי 2</span>
+              <span style="font-size:0.74rem;color:#94a3b8;">חובה בדו-קרב</span>
+            </div>
+            <div class="input-voice-row">
+              <input id="name2Input" class="name-input" type="text" placeholder="שם ספורטאי 2..." autocomplete="off" />
+              <button id="mic2Btn" class="mic-btn" type="button" data-target="2">🎤 הקלט שם</button>
+            </div>
+            <div id="chips2" class="quick-chips"></div>
+          </div>
+        </div>
+
+        <div id="validationMsg" class="validation-msg"></div>
+      </section>
+
+      <!-- 2 & 3. Stopwatch + Accept/Cancel + Interactive Slot Assignment -->
+      <section class="card">
+        <div class="stopwatch-panel">
+          <div id="clockStatusPill" class="status-pill">ממתין להזנקה</div>
+          <div id="clockDisplay" class="clock-readout">00:00.00</div>
+
+          <div id="splitPreview" class="split-preview">
+            <div class="split-box">
+              <div class="split-title">עצירה ראשונה</div>
+              <div id="split1Display" class="split-val empty">--:--.--</div>
+            </div>
+            <div id="split2Box" class="split-box">
+              <div class="split-title">עצירה שנייה</div>
+              <div id="split2Display" class="split-val empty">--:--.--</div>
+            </div>
+          </div>
+
+          <div class="clock-controls">
+            <button id="startBtn" class="btn btn-start" type="button" disabled>▶ התחל</button>
+            <button id="stopBtn" class="btn btn-stop hidden" type="button">⏹ עצור</button>
+            <button id="restartDuelBtn" class="btn btn-restart" type="button">↻ בטל / התחל מחדש</button>
+          </div>
+        </div>
+
+        <!-- Accept / Cancel & Assignment Panel -->
+        <div id="approvalPanel" class="approval-card hidden">
+          <div style="font-weight:900;font-size:0.98rem;">אישור תוצאות הדו-קרב</div>
+          <div id="measuredSummaryText" style="font-size:0.84rem;color:var(--text-muted);margin-top:4px;line-height:1.35;"></div>
+
+          <div class="approval-top-actions">
+            <button id="acceptRunBtn" class="btn btn-accept" type="button">✓ קבל</button>
+            <button id="cancelRunBtn" class="btn btn-cancel" type="button">✕ בטל</button>
+          </div>
+
+          <div id="assignPanel" class="assign-panel hidden">
+            <div id="assignHint" class="assign-hint"></div>
+            <div id="slotsContainer" class="slots-grid"></div>
+            <div id="fighterAssignList"></div>
+            <div id="autoWinnerBanner" class="auto-winner-banner hidden"></div>
+
+            <div style="margin-top:10px;">
+              <button id="saveAssignedBtn" class="btn btn-accept" style="width:100%;" type="button">שמור תוצאה לטבלה</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4, 5, 6, 7, 8. Stage Transitions -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">🧭 מעבר שלבים וסיום</div>
+        </div>
+
+        <div class="nav-stages-grid">
+          <button id="btnExtraRound" class="btn btn-stage" type="button">➕ סבב נוסף</button>
+          <button id="btnSemiFinal" class="btn btn-stage" type="button">🏅 חצי גמר</button>
+          <button id="btnFinal" class="btn btn-stage" type="button">🏆 גמר</button>
+          <button id="btnFinish" class="btn btn-stage finish-btn" type="button">🏁 סיום</button>
+        </div>
+
+        <!-- Extra Qualifier Round Config -->
+        <div id="extraRoundConfig" class="extra-round-box hidden">
+          <div style="font-weight:900;font-size:0.94rem;color:#ff984d;">הגדרת סבב מוקדמות נוסף</div>
+
+          <div class="inline-row">
+            <label for="extraPairsCount" style="font-size:0.86rem;font-weight:800;">
+              מספר זוגות (מקסימום <span id="maxPairsAllowed">0</span>):
+            </label>
+            <input id="extraPairsCount" class="small-num-input" type="number" min="1" value="1" />
+          </div>
+
+          <div class="inline-row">
+            <button id="modeRandomPairsBtn" class="mode-btn active" type="button">🎲 אקראי</button>
+            <button id="modeManualPairsBtn" class="mode-btn" type="button">✋ בחירת זוגות</button>
+          </div>
+
+          <div id="dqPoolBox" class="dq-pool-box hidden">
+            <div style="font-size:0.82rem;font-weight:800;color:#fca5a5;margin-bottom:6px;">
+              מתאמנים שפסלו בסבב הקודם (לחיצה להוספה מהירה):
+            </div>
+            <div id="dqPoolChips" class="quick-chips"></div>
+          </div>
+
+          <div id="extraPairsMsg" class="validation-msg"></div>
+
+          <div class="inline-row">
+            <button id="confirmExtraRoundBtn" class="btn btn-accept" style="flex:1;" type="button">הפעל סבב נוסף</button>
+            <button id="cancelExtraRoundBtn" class="btn btn-restart" type="button">ביטול</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Tables -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">📊 טבלאות דירוג ותוצאות</div>
+        </div>
+        <div id="tableTabs" class="tabs"></div>
+        <div id="activeTableContainer"></div>
+      </section>
+    </main>
+
+    <!-- Summary / Finish Screen -->
+    <section id="summaryView" class="card hidden">
+      <div class="summary-header-box">
+        <div>
+          <div style="font-size:1.08rem;font-weight:900;">🏁 סיכום תחרות ותוצאות סופיות</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">
+            מוקדמות, שקלול מוקדמות, חצי גמר וגמר/דירוג סופי
+          </div>
+        </div>
+        <div class="summary-actions">
+          <button id="copyWhatsappBtn" class="btn btn-accept" type="button">📋 העתק תוצאות לוואטסאפ</button>
+          <button id="backToArenaBtn" class="btn btn-restart" type="button">↩ חזרה למסך</button>
+        </div>
+      </div>
+
+      <div id="allSummaryTables"></div>
+      <div id="whatsappPreview" class="whatsapp-preview"></div>
+    </section>
+  </div>
+
+  <!-- Quick Voice/Dictation Modal when browser blocks SpeechRecognition -->
+  <div id="voiceFallbackModal" class="voice-modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="voice-modal-card">
+      <div style="font-weight:900;font-size:1rem;color:#c4b5fd;">
+        🎤 הזנת שם עבור <span id="voiceModalTargetLabel">ספורטאי 1</span>
+      </div>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;line-height:1.4;">
+        הדפדפן חסם גישה ישירה למיקרופון במצב קובץ מקומי. לחץ על המיקרופון במקלדת הטלפון כדי להכתיב בקול, או הקלד/בחר שם:
+      </div>
+      <div style="margin-top:10px;">
+        <input id="voiceModalInput" class="name-input" type="text" placeholder="הקליד או הכתיב בקול במקלדת..." autocomplete="off" />
+      </div>
+      <div id="voiceModalRoster" class="quick-chips"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+        <button id="voiceModalSaveBtn" class="btn btn-accept" type="button">✓ אשר שם</button>
+        <button id="voiceModalCloseBtn" class="btn btn-cancel" type="button">✕ סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'ninja_speed_duel_timer_v4';
+
+      const createDefaultState = () => ({
+        stage: 'QUAL_1',
+        round1PairsCount: 0,
+        extraRoundConfig: {
+          pairsCount: 1,
+          pairingMode: 'random',
+          queue: []
+        },
+        roster: [],
+        qual1Results: [],
+        qual2Results: [],
+        semiMatches: [],
+        finalMatch: null,
+        thirdFourth: { third: null, fourth: null },
+        activeTab: 'QUAL_1',
+        isFinishedScreen: false
+      });
+
+      let state = loadState();
+
+      let isSingleMode = false;
+      let runPhase = 'IDLE';
+      let startPerf = 0;
+      let split1Ms = null;
+      let split2Ms = null;
+      let rafId = null;
+
+      let activeSlotId = 'FAST';
+      let slotAssignments = { FAST: 1, SLOW: 2, SINGLE: 1 };
+      let status1 = 'FINISHED';
+      let status2 = 'FINISHED';
+
+      const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+      let activeRecognition = null;
+      let activeMicTarget = null;
+      let modalTargetIdx = null;
+      let wakeLockSentinel = null;
+
+      const el = (id) => document.getElementById(id);
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createDefaultState();
+          return { ...createDefaultState(), ...JSON.parse(raw) };
+        } catch {
+          return createDefaultState();
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {}
+      }
+
+      function showToast(msg) {
+        const t = el('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(() => t.classList.remove('show'), 2600);
+      }
+
+      function formatTime(ms) {
+        if (typeof ms !== 'number' || Number.isNaN(ms) || ms < 0) return '--:--.--';
+        const totalCentis = Math.floor(ms / 10);
+        const centis = totalCentis % 100;
+        const totalSeconds = Math.floor(totalCentis / 100);
+        const seconds = totalSeconds % 60;
+        const minutes = Math.floor(totalSeconds / 60);
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centis).padStart(2, '0')}`;
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      async function requestWakeLock() {
+        if (!('wakeLock' in navigator)) {
+          updateWakeLockUI(false, 'לא נתמך');
+          return;
+        }
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+          updateWakeLockUI(true, 'פעיל');
+          wakeLockSentinel.addEventListener('release', () => {
+            updateWakeLockUI(false, 'מושהה');
+          });
+        } catch {
+          updateWakeLockUI(false, 'כבוי');
+        }
+      }
+
+      function updateWakeLockUI(active, labelText) {
+        const pill = el('wakelockStatus');
+        pill.classList.toggle('off', !active);
+        pill.innerHTML = `<span class="dot"></span><span>מסך פעיל: ${labelText}</span>`;
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          requestWakeLock();
+        }
+      });
+
+      // Voice Recording (he-IL) + Automatic Dictation Fallback Modal
+      function syncMicButtons() {
+        const b1 = el('mic1Btn');
+        const b2 = el('mic2Btn');
+        b1.classList.toggle('listening', activeMicTarget === 1);
+        b2.classList.toggle('listening', activeMicTarget === 2);
+        b1.textContent = activeMicTarget === 1 ? '🔴 מקליט...' : '🎤 הקלט שם';
+        b2.textContent = activeMicTarget === 2 ? '🔴 מקליט...' : '🎤 הקלט שם';
+
+        const running = runPhase === 'RUNNING_1' || runPhase === 'RUNNING_2';
+        b1.disabled = running;
+        b2.disabled = running || isSingleMode;
+      }
+
+      function stopActiveRecognition() {
+        if (activeRecognition) {
+          try {
+            activeRecognition.onresult = null;
+            activeRecognition.onerror = null;
+            activeRecognition.onend = null;
+            activeRecognition.abort();
+          } catch {}
+        }
+        activeRecognition = null;
+        activeMicTarget = null;
+        syncMicButtons();
+      }
+
+      function openVoiceFallbackModal(targetIdx) {
+        modalTargetIdx = targetIdx;
+        const currentInput = targetIdx === 1 ? el('name1Input') : el('name2Input');
+        el('voiceModalTargetLabel').textContent = `ספורטאי ${targetIdx}`;
+        el('voiceModalInput').value = currentInput.value.trim();
+
+        const rosterBox = el('voiceModalRoster');
+        rosterBox.innerHTML = '';
+        state.roster.forEach((name) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'chip';
+          b.textContent = name;
+          b.onclick = () => {
+            el('voiceModalInput').value = name;
+          };
+          rosterBox.appendChild(b);
+        });
+
+        el('voiceFallbackModal').classList.remove('hidden');
+        setTimeout(() => el('voiceModalInput').focus(), 60);
+      }
+
+      function closeVoiceFallbackModal() {
+        modalTargetIdx = null;
+        el('voiceFallbackModal').classList.add('hidden');
+      }
+
+      function applyVoiceName(targetIdx, rawName) {
+        const clean = (rawName || '').trim();
+        if (!clean) return;
+        const input = targetIdx === 1 ? el('name1Input') : el('name2Input');
+        input.value = clean;
+        addToRoster(clean);
+        renderChips();
+        validateFighters();
+        showToast(`נרשם: ${clean}`);
+      }
+
+      function toggleMic(targetIdx) {
+        if (activeMicTarget === targetIdx) {
+          stopActiveRecognition();
+          showToast('ההקלטה הופסקה');
+          return;
+        }
+
+        stopActiveRecognition();
+
+        if (!SpeechRecognitionCtor || (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1')) {
+          openVoiceFallbackModal(targetIdx);
+          return;
+        }
+
+        const rec = new SpeechRecognitionCtor();
+        rec.lang = 'he-IL';
+        rec.interimResults = false;
+        rec.maxAlternatives = 3;
+
+        activeRecognition = rec;
+        activeMicTarget = targetIdx;
+        syncMicButtons();
+        showToast(`מקליט שם ספורטאי ${targetIdx} בעברית...`);
+
+        rec.onresult = (event) => {
+          const resList = event.results?.[event.resultIndex || 0];
+          let spoken = '';
+          for (let i = 0; i < (resList?.length || 0); i++) {
+            const candidate = (resList[i]?.transcript || '').trim();
+            if (candidate) {
+              spoken = candidate;
+              break;
+            }
+          }
+          stopActiveRecognition();
+          if (spoken) {
+            applyVoiceName(targetIdx, spoken);
+          } else {
+            openVoiceFallbackModal(targetIdx);
+          }
+        };
+
+        rec.onerror = (event) => {
+          const errCode = event?.error || '';
+          stopActiveRecognition();
+          if (errCode === 'not-allowed' || errCode === 'service-not-allowed' || errCode === 'network' || errCode === 'audio-capture') {
+            openVoiceFallbackModal(targetIdx);
+          } else if (errCode === 'no-speech') {
+            showToast('לא זוהה דיבור – לחץ שוב או השתמש בהכתבה');
+          } else {
+            openVoiceFallbackModal(targetIdx);
+          }
+        };
+
+        rec.onend = () => {
+          stopActiveRecognition();
+        };
+
+        try {
+          rec.start();
+        } catch {
+          stopActiveRecognition();
+          openVoiceFallbackModal(targetIdx);
+        }
+      }
+
+      function addToRoster(name) {
+        const clean = (name || '').trim();
+        if (!clean) return;
+        if (!state.roster.includes(clean)) {
+          state.roster.push(clean);
+          saveState();
+        }
+      }
+
+      function renderChips() {
+        const c1 = el('chips1');
+        const c2 = el('chips2');
+        c1.innerHTML = '';
+        c2.innerHTML = '';
+
+        const locked = runPhase === 'RUNNING_1' || runPhase === 'RUNNING_2';
+        state.roster.forEach((name) => {
+          const chip1 = document.createElement('button');
+          chip1.type = 'button';
+          chip1.className = 'chip';
+          chip1.textContent = name;
+          chip1.disabled = locked;
+          chip1.onclick = () => {
+            el('name1Input').value = name;
+            validateFighters();
+          };
+          c1.appendChild(chip1);
+
+          const chip2 = document.createElement('button');
+          chip2.type = 'button';
+          chip2.className = 'chip';
+          chip2.textContent = name;
+          chip2.disabled = locked || isSingleMode;
+          chip2.onclick = () => {
+            el('name2Input').value = name;
+            validateFighters();
+          };
+          c2.appendChild(chip2);
+        });
+      }
+
+      function stageLabel(st) {
+        if (st === 'QUAL_1') return 'מוקדמות 1';
+        if (st === 'QUAL_2') return 'מוקדמות 2';
+        if (st === 'SEMI') return 'חצי גמר';
+        if (st === 'FINAL') return 'גמר';
+        return 'מוקדמות 1';
+      }
+
+      function rankEntries(entries) {
+        const finished = entries
+          .filter((e) => e.status === 'FINISHED')
+          .sort((a, b) => a.timeMs - b.timeMs)
+          .map((e, idx) => ({ ...e, rank: idx + 1 }));
+
+        const dq = entries
+          .filter((e) => e.status === 'DQ')
+          .sort((a, b) => a.timeMs - b.timeMs)
+          .map((e) => ({ ...e, rank: null }));
+
+        return [...finished, ...dq];
+      }
+
+      function getCombinedQualRanking() {
+        const map = new Map();
+        const all = [...state.qual1Results, ...state.qual2Results];
+
+        for (const item of all) {
+          if (!map.has(item.name)) {
+            map.set(item.name, { name: item.name, bestFinished: null, bestDq: null });
+          }
+          const entry = map.get(item.name);
+          if (item.status === 'FINISHED') {
+            if (entry.bestFinished === null || item.timeMs < entry.bestFinished) {
+              entry.bestFinished = item.timeMs;
+            }
+          } else {
+            if (entry.bestDq === null || item.timeMs < entry.bestDq) {
+              entry.bestDq = item.timeMs;
+            }
+          }
+        }
+
+        const finishedList = [];
+        const dqList = [];
+
+        for (const v of map.values()) {
+          if (v.bestFinished !== null) {
+            finishedList.push({ name: v.name, timeMs: v.bestFinished, status: 'FINISHED' });
+          } else {
+            dqList.push({ name: v.name, timeMs: v.bestDq, status: 'DQ' });
+          }
+        }
+
+        finishedList.sort((a, b) => a.timeMs - b.timeMs);
+        dqList.sort((a, b) => a.timeMs - b.timeMs);
+
+        return [
+          ...finishedList.map((x, idx) => ({ ...x, rank: idx + 1 })),
+          ...dqList.map((x) => ({ ...x, rank: null }))
+        ];
+      }
+
+      function computeDuelWinner(n1, t1, s1, n2, t2, s2) {
+        if (s1 === 'FINISHED' && s2 !== 'FINISHED') return n1;
+        if (s2 === 'FINISHED' && s1 !== 'FINISHED') return n2;
+        return t1 <= t2 ? n1 : n2;
+      }
+
+      function getFullFinalStandings() {
+        const qualRanked = getCombinedQualRanking();
+        const qualMap = new Map();
+        qualRanked.forEach((item) => {
+          qualMap.set(item.name, item);
+        });
+
+        const orderedNames = [];
+        const pushUnique = (name) => {
+          if (name && !orderedNames.includes(name)) {
+            orderedNames.push(name);
+          }
+        };
+
+        if (state.finalMatch) {
+          pushUnique(state.finalMatch.firstPlace);
+          pushUnique(state.finalMatch.secondPlace);
+        }
+
+        if (state.thirdFourth?.third?.name) {
+          pushUnique(state.thirdFourth.third.name);
+        }
+        if (state.thirdFourth?.fourth?.name) {
+          pushUnique(state.thirdFourth.fourth.name);
+        }
+
+        qualRanked.forEach((item) => pushUnique(item.name));
+        state.roster.forEach((name) => pushUnique(name));
+
+        return orderedNames.map((name, idx) => {
+          let timeMs = null;
+          let status = 'FINISHED';
+          let note = '';
+
+          if (state.finalMatch && state.finalMatch.firstPlace === name) {
+            timeMs = name === state.finalMatch.f1 ? state.finalMatch.t1 : state.finalMatch.t2;
+            status = name === state.finalMatch.f1 ? state.finalMatch.s1 : state.finalMatch.s2;
+            note = 'מנצח הגמר';
+          } else if (state.finalMatch && state.finalMatch.secondPlace === name) {
+            timeMs = name === state.finalMatch.f1 ? state.finalMatch.t1 : state.finalMatch.t2;
+            status = name === state.finalMatch.f1 ? state.finalMatch.s1 : state.finalMatch.s2;
+            note = 'סגן אלוף (גמר)';
+          } else if (state.thirdFourth?.third?.name === name) {
+            timeMs = state.thirdFourth.third.timeMs;
+            status = state.thirdFourth.third.status;
+            note = 'מקום 3 (חצי גמר)';
+          } else if (state.thirdFourth?.fourth?.name === name) {
+            timeMs = state.thirdFourth.fourth.timeMs;
+            status = state.thirdFourth.fourth.status;
+            note = 'מקום 4 (חצי גמר)';
+          } else if (qualMap.has(name)) {
+            const q = qualMap.get(name);
+            timeMs = q.timeMs;
+            status = q.status;
+            note = q.status === 'FINISHED' ? 'שיא מוקדמות' : 'פסילה במוקדמות';
+          }
+
+          return {
+            place: idx + 1,
+            name,
+            timeMs,
+            status,
+            note
+          };
+        });
+      }
+
+      function getDisqualifiedAthletes() {
+        const names = new Set();
+        [...state.qual1Results, ...state.qual2Results].forEach((r) => {
+          if (r.status === 'DQ') names.add(r.name);
+        });
+        return Array.from(names);
+      }
+
+      function buildRandomExtraQueue() {
+        const names = [...state.roster];
+        for (let i = names.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [names[i], names[j]] = [names[j], names[i]];
+        }
+        const maxPairs = Math.max(1, state.extraRoundConfig.pairsCount || 1);
+        const queue = [];
+        let idx = 0;
+        for (let p = 0; p < maxPairs && idx < names.length; p++) {
+          const a = names[idx++];
+          const b = names[idx++] || '';
+          queue.push({ f1: a, f2: b, single: !b });
+        }
+        state.extraRoundConfig.queue = queue;
+        saveState();
+      }
+
+      function prepareStageMatchupIfNeeded() {
+        const n1 = el('name1Input');
+        const n2 = el('name2Input');
+
+        if (state.stage === 'QUAL_2' && state.extraRoundConfig.pairingMode === 'random') {
+          if (!state.extraRoundConfig.queue.length) {
+            buildRandomExtraQueue();
+          }
+          const nextPair = state.extraRoundConfig.queue[0];
+          if (nextPair) {
+            isSingleMode = !!nextPair.single;
+            n1.value = nextPair.f1 || '';
+            n2.value = nextPair.f2 || '';
+          }
+        } else if (state.stage === 'SEMI') {
+          const ranked = getCombinedQualRanking();
+          const p1 = ranked[0]?.name || 'מקום 1';
+          const p4 = ranked[3]?.name || 'מקום 4';
+          const p2 = ranked[1]?.name || 'מקום 2';
+          const p3 = ranked[2]?.name || 'מקום 3';
+
+          if (state.semiMatches.length === 0) {
+            isSingleMode = false;
+            n1.value = p1;
+            n2.value = p4;
+          } else if (state.semiMatches.length === 1) {
+            isSingleMode = false;
+            n1.value = p2;
+            n2.value = p3;
+          }
+        } else if (state.stage === 'FINAL') {
+          isSingleMode = false;
+          if (state.semiMatches.length >= 2) {
+            n1.value = state.semiMatches[0].winner || '';
+            n2.value = state.semiMatches[1].winner || '';
+          } else {
+            const ranked = getCombinedQualRanking();
+            n1.value = ranked[0]?.name || '';
+            n2.value = ranked[1]?.name || '';
+          }
+        }
+
+        syncModeUI();
+        validateFighters();
+      }
+
+      function setSingleMode(single) {
+        if (runPhase === 'RUNNING_1' || runPhase === 'RUNNING_2') return;
+        isSingleMode = single;
+        syncModeUI();
+        validateFighters();
+      }
+
+      function syncModeUI() {
+        el('modeDuelBtn').classList.toggle('active', !isSingleMode);
+        el('modeSingleBtn').classList.toggle('active', isSingleMode);
+        el('fightersGrid').classList.toggle('single-mode', isSingleMode);
+        el('fighter2Box').classList.toggle('hidden', isSingleMode);
+        el('labelFighter1').textContent = isSingleMode ? 'שם המתאמן (יחיד)' : 'ספורטאי 1';
+        el('splitPreview').classList.toggle('single', isSingleMode);
+        el('split2Box').classList.toggle('hidden', isSingleMode);
+        syncMicButtons();
+      }
+
+      function validateFighters() {
+        const f1 = el('name1Input').value.trim();
+        const f2 = el('name2Input').value.trim();
+        const msg = el('validationMsg');
+        const startBtn = el('startBtn');
+
+        if (runPhase !== 'IDLE') {
+          msg.textContent = '';
+          startBtn.disabled = true;
+          return false;
+        }
+
+        if (isSingleMode) {
+          if (!f1) {
+            msg.textContent = 'יש להזין שם מתאמן כדי להפעיל את כפתור התחל.';
+            startBtn.disabled = true;
+            return false;
+          }
+          msg.textContent = '';
+          startBtn.disabled = false;
+          return true;
+        }
+
+        if (!f1 || !f2) {
+          msg.textContent = 'חובה להזין את שני השמות (ספורטאי 1 וספורטאי 2) כדי להפעיל את השעון.';
+          startBtn.disabled = true;
+          return false;
+        }
+
+        msg.textContent = '';
+        startBtn.disabled = false;
+        return true;
+      }
+
+      function tickClock() {
+        if (runPhase !== 'RUNNING_1' && runPhase !== 'RUNNING_2') return;
+        const elapsed = performance.now() - startPerf;
+        el('clockDisplay').textContent = formatTime(elapsed);
+        rafId = requestAnimationFrame(tickClock);
+      }
+
+      function startRun() {
+        if (!validateFighters()) return;
+
+        stopActiveRecognition();
+
+        split1Ms = null;
+        split2Ms = null;
+        el('approvalPanel').classList.add('hidden');
+        el('assignPanel').classList.add('hidden');
+        el('split1Display').textContent = '--:--.--';
+        el('split1Display').classList.add('empty');
+        el('split2Display').textContent = '--:--.--';
+        el('split2Display').classList.add('empty');
+
+        runPhase = 'RUNNING_1';
+        startPerf = performance.now();
+
+        el('startBtn').classList.add('hidden');
+        el('stopBtn').classList.remove('hidden');
+        el('stopBtn').textContent = isSingleMode ? '⏹ עצור שעון' : '⏹ עצור (1 מתוך 2)';
+        el('clockStatusPill').textContent = isSingleMode ? 'מתאמן יחיד רץ...' : 'דו-קרב פעיל · עצירה 1';
+        el('clockStatusPill').className = 'status-pill running';
+
+        el('name1Input').disabled = true;
+        el('name2Input').disabled = true;
+        renderChips();
+        syncMicButtons();
+
+        rafId = requestAnimationFrame(tickClock);
+      }
+
+      function stopRun() {
+        const now = performance.now();
+        const elapsed = Math.max(0, now - startPerf);
+
+        if (isSingleMode) {
+          cancelAnimationFrame(rafId);
+          split1Ms = elapsed;
+          el('clockDisplay').textContent = formatTime(elapsed);
+          el('split1Display').textContent = formatTime(split1Ms);
+          el('split1Display').classList.remove('empty');
+          enterReviewPhase();
+          return;
+        }
+
+        if (runPhase === 'RUNNING_1') {
+          split1Ms = elapsed;
+          runPhase = 'RUNNING_2';
+          el('split1Display').textContent = formatTime(split1Ms);
+          el('split1Display').classList.remove('empty');
+          el('stopBtn').textContent = '⏹ עצור (2 מתוך 2)';
+          el('clockStatusPill').textContent = 'עצירה 1 נרשמה · השעון ממשיך';
+          showToast(`עצירה 1: ${formatTime(split1Ms)}`);
+          return;
+        }
+
+        if (runPhase === 'RUNNING_2') {
+          cancelAnimationFrame(rafId);
+          split2Ms = elapsed;
+          el('clockDisplay').textContent = formatTime(split2Ms);
+          el('split2Display').textContent = formatTime(split2Ms);
+          el('split2Display').classList.remove('empty');
+          enterReviewPhase();
+        }
+      }
+
+      function enterReviewPhase() {
+        runPhase = 'REVIEW';
+        el('startBtn').classList.remove('hidden');
+        el('stopBtn').classList.add('hidden');
+        el('clockStatusPill').textContent = 'ממתין לאישור תוצאה';
+        el('clockStatusPill').className = 'status-pill finished';
+
+        el('approvalPanel').classList.remove('hidden');
+        el('assignPanel').classList.add('hidden');
+
+        const n1 = el('name1Input').value.trim();
+        const n2 = el('name2Input').value.trim();
+
+        if (isSingleMode) {
+          el('measuredSummaryText').textContent = `${n1}: ${formatTime(split1Ms)}`;
+        } else {
+          el('measuredSummaryText').textContent =
+            `תוצאה 1: ${formatTime(split1Ms)} | תוצאה 2: ${formatTime(split2Ms)} (${n1} ו-${n2})`;
+        }
+      }
+
+      function resetCurrentRun(clearNames = false) {
+        cancelAnimationFrame(rafId);
+        runPhase = 'IDLE';
+        split1Ms = null;
+        split2Ms = null;
+
+        el('clockDisplay').textContent = '00:00.00';
+        el('split1Display').textContent = '--:--.--';
+        el('split1Display').classList.add('empty');
+        el('split2Display').textContent = '--:--.--';
+        el('split2Display').classList.add('empty');
+
+        el('startBtn').classList.remove('hidden');
+        el('stopBtn').classList.add('hidden');
+        el('clockStatusPill').textContent = 'ממתין להזנקה';
+        el('clockStatusPill').className = 'status-pill';
+
+        el('approvalPanel').classList.add('hidden');
+        el('assignPanel').classList.add('hidden');
+
+        el('name1Input').disabled = false;
+        el('name2Input').disabled = false;
+
+        if (clearNames) {
+          el('name1Input').value = '';
+          el('name2Input').value = '';
+        }
+
+        renderChips();
+        syncMicButtons();
+        validateFighters();
+      }
+
+      function openAssignmentPanel() {
+        status1 = 'FINISHED';
+        status2 = 'FINISHED';
+
+        const n1 = el('name1Input').value.trim();
+        const n2 = el('name2Input').value.trim();
+
+        el('assignPanel').classList.remove('hidden');
+
+        if (isSingleMode) {
+          activeSlotId = 'SINGLE';
+          slotAssignments = { FAST: 1, SLOW: 2, SINGLE: 1 };
+          renderAssignmentUI(n1, '', [{ id: 'SINGLE', label: 'תוצאה שנמדדה', timeMs: split1Ms }]);
+          return;
+        }
+
+        const fastVal = Math.min(split1Ms, split2Ms);
+        const slowVal = Math.max(split1Ms, split2Ms);
+
+        activeSlotId = 'FAST';
+        slotAssignments = { FAST: 1, SLOW: 2, SINGLE: 1 };
+
+        renderAssignmentUI(n1, n2, [
+          { id: 'FAST', label: '⚡ תוצאה נמוכה (מהירה)', timeMs: fastVal },
+          { id: 'SLOW', label: 'תוצאה שנייה (גבוהה)', timeMs: slowVal }
+        ]);
+      }
+
+      function getFighterMappedTime(fighterNum, slots) {
+        const fastSlot = slots.find((s) => s.id === 'FAST');
+        const slowSlot = slots.find((s) => s.id === 'SLOW');
+        if (!fastSlot || !slowSlot) return split1Ms;
+        if (slotAssignments.FAST === fighterNum) return fastSlot.timeMs;
+        return slowSlot.timeMs;
+      }
+
+      function renderAssignmentUI(n1, n2, slots) {
+        const assignPanel = el('assignPanel');
+        if (assignPanel.classList.contains('hidden')) return;
+
+        if (isSingleMode) {
+          el('assignHint').textContent = `שיוך תוצאה עבור ${n1} ובחירת סיים / פסל:`;
+          el('slotsContainer').innerHTML = `
+            <div class="time-slot-btn active-slot">
+              <div class="slot-top-row"><span>⏱️ זמן מדידה</span><span>${escapeHtml(n1)}</span></div>
+              <div class="slot-time-val">${formatTime(split1Ms)}</div>
+              <div class="slot-assigned-name">משויך אל: ${escapeHtml(n1)}</div>
+            </div>
+          `;
+          el('fighterAssignList').innerHTML = `
+            <div class="fighter-assign-card">
+              <div class="fighter-assign-head">
+                <span style="font-weight:900;font-size:1rem;">${escapeHtml(n1)}</span>
+                <div class="status-choice-group">
+                  <button type="button" id="singleFinishBtn" class="choice-btn finish ${status1 === 'FINISHED' ? 'active' : ''}">✓ סיים</button>
+                  <button type="button" id="singleDqBtn" class="choice-btn dq ${status1 === 'DQ' ? 'active' : ''}">✕ פסל</button>
+                </div>
+              </div>
+            </div>
+          `;
+          el('autoWinnerBanner').classList.add('hidden');
+          el('singleFinishBtn').onclick = () => {
+            status1 = 'FINISHED';
+            renderAssignmentUI(n1, n2, slots);
+          };
+          el('singleDqBtn').onclick = () => {
+            status1 = 'DQ';
+            renderAssignmentUI(n1, n2, slots);
+          };
+          return;
+        }
+
+        const activeSlot = slots.find((s) => s.id === activeSlotId) || slots[0];
+        el('assignHint').textContent =
+          `תוצאה פעילה מודגשת (${activeSlot.label}: ${formatTime(activeSlot.timeMs)}) – לחץ על תוצאה להדגשה, בחר מתאמן לשיוך, וסמן סיים / פסל:`;
+
+        el('slotsContainer').innerHTML = slots.map((s) => {
+          const assignedFighter = slotAssignments[s.id] === 2 ? n2 : n1;
+          const isSelected = s.id === activeSlotId;
+          return `
+            <button type="button" class="time-slot-btn ${isSelected ? 'active-slot' : ''}" data-slot="${s.id}">
+              <div class="slot-top-row">
+                <span>${s.label}</span>
+                <span>${isSelected ? '● מודגש' : 'לבחירה'}</span>
+              </div>
+              <div class="slot-time-val">${formatTime(s.timeMs)}</div>
+              <div class="slot-assigned-name">מתאמן: ${escapeHtml(assignedFighter)}</div>
+            </button>
+          `;
+        }).join('');
+
+        el('slotsContainer').querySelectorAll('.time-slot-btn').forEach((btn) => {
+          btn.onclick = () => {
+            activeSlotId = btn.dataset.slot;
+            renderAssignmentUI(n1, n2, slots);
+          };
+        });
+
+        const f1MappedTime = getFighterMappedTime(1, slots);
+        const f2MappedTime = getFighterMappedTime(2, slots);
+
+        el('fighterAssignList').innerHTML = `
+          <div class="fighter-assign-card">
+            <div class="fighter-assign-head">
+              <button type="button" id="assignToF1Btn" class="fighter-pick-btn ${slotAssignments[activeSlotId] === 1 ? 'assigned-active' : ''}">
+                ${escapeHtml(n1)} · <span dir="ltr">${formatTime(f1MappedTime)}</span>
+                ${slotAssignments[activeSlotId] === 1 ? ' (משויך למודגש)' : ' (לחץ לשיוך)'}
+              </button>
+              <div class="status-choice-group">
+                <button type="button" id="s1Fin" class="choice-btn finish ${status1 === 'FINISHED' ? 'active' : ''}">✓ סיים</button>
+                <button type="button" id="s1Dq" class="choice-btn dq ${status1 === 'DQ' ? 'active' : ''}">✕ פסל</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fighter-assign-card">
+            <div class="fighter-assign-head">
+              <button type="button" id="assignToF2Btn" class="fighter-pick-btn ${slotAssignments[activeSlotId] === 2 ? 'assigned-active' : ''}">
+                ${escapeHtml(n2)} · <span dir="ltr">${formatTime(f2MappedTime)}</span>
+                ${slotAssignments[activeSlotId] === 2 ? ' (משויך למודגש)' : ' (לחץ לשיוך)'}
+              </button>
+              <div class="status-choice-group">
+                <button type="button" id="s2Fin" class="choice-btn finish ${status2 === 'FINISHED' ? 'active' : ''}">✓ סיים</button>
+                <button type="button" id="s2Dq" class="choice-btn dq ${status2 === 'DQ' ? 'active' : ''}">✕ פסל</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        el('assignToF1Btn').onclick = () => {
+          slotAssignments[activeSlotId] = 1;
+          const otherSlotId = activeSlotId === 'FAST' ? 'SLOW' : 'FAST';
+          slotAssignments[otherSlotId] = 2;
+          renderAssignmentUI(n1, n2, slots);
+        };
+
+        el('assignToF2Btn').onclick = () => {
+          slotAssignments[activeSlotId] = 2;
+          const otherSlotId = activeSlotId === 'FAST' ? 'SLOW' : 'FAST';
+          slotAssignments[otherSlotId] = 1;
+          renderAssignmentUI(n1, n2, slots);
+        };
+
+        el('s1Fin').onclick = () => { status1 = 'FINISHED'; renderAssignmentUI(n1, n2, slots); };
+        el('s1Dq').onclick = () => { status1 = 'DQ'; renderAssignmentUI(n1, n2, slots); };
+        el('s2Fin').onclick = () => { status2 = 'FINISHED'; renderAssignmentUI(n1, n2, slots); };
+        el('s2Dq').onclick = () => { status2 = 'DQ'; renderAssignmentUI(n1, n2, slots); };
+
+        const autoBanner = el('autoWinnerBanner');
+        if (state.stage === 'SEMI' || state.stage === 'FINAL') {
+          const autoWin = computeDuelWinner(n1, f1MappedTime, status1, n2, f2MappedTime, status2);
+          autoBanner.classList.remove('hidden');
+          autoBanner.textContent = `🏆 מנצח אוטומטי בדו-קרב: ${autoWin}`;
+        } else {
+          autoBanner.classList.add('hidden');
+        }
+      }
+
+      function saveAssignedResult() {
+        const n1 = el('name1Input').value.trim();
+        const n2 = el('name2Input').value.trim();
+
+        if (isSingleMode) {
+          addToRoster(n1);
+          recordQualResult(n1, split1Ms, status1);
+          if (state.stage === 'QUAL_1') {
+            state.round1PairsCount = Math.max(state.round1PairsCount, 1);
+          }
+          if (state.stage === 'QUAL_2' && state.extraRoundConfig.queue.length) {
+            state.extraRoundConfig.queue.shift();
+          }
+          saveState();
+          renderAll();
+          resetCurrentRun(true);
+          prepareStageMatchupIfNeeded();
+          showToast('התוצאה נשמרה לטבלה');
+          return;
+        }
+
+        const slots = [
+          { id: 'FAST', timeMs: Math.min(split1Ms, split2Ms) },
+          { id: 'SLOW', timeMs: Math.max(split1Ms, split2Ms) }
+        ];
+        const t1 = getFighterMappedTime(1, slots);
+        const t2 = getFighterMappedTime(2, slots);
+
+        addToRoster(n1);
+        addToRoster(n2);
+
+        if (state.stage === 'QUAL_1') {
+          state.round1PairsCount += 1;
+          recordQualResult(n1, t1, status1, 1);
+          recordQualResult(n2, t2, status2, 1);
+          state.activeTab = 'QUAL_1';
+        } else if (state.stage === 'QUAL_2') {
+          recordQualResult(n1, t1, status1, 2);
+          recordQualResult(n2, t2, status2, 2);
+          if (state.extraRoundConfig.queue.length) {
+            state.extraRoundConfig.queue.shift();
+          }
+          state.activeTab = 'COMBINED';
+        } else if (state.stage === 'SEMI') {
+          const winnerName = computeDuelWinner(n1, t1, status1, n2, t2, status2);
+          const loserName = winnerName === n1 ? n2 : n1;
+          const loserTime = winnerName === n1 ? t2 : t1;
+          const loserStatus = winnerName === n1 ? status2 : status1;
+
+          state.semiMatches.push({
+            id: Date.now() + Math.random(),
+            f1: n1, t1, s1: status1,
+            f2: n2, t2, s2: status2,
+            winner: winnerName,
+            loser: { name: loserName, timeMs: loserTime, status: loserStatus }
+          });
+          state.activeTab = 'SEMI';
+
+          if (state.semiMatches.length >= 2) {
+            computeThirdFourthFromSemi();
+            state.stage = 'FINAL';
+            state.activeTab = 'FINAL';
+            showToast('הסתיים חצי הגמר – שלב הגמר מתחיל אוטומטית!');
+          } else {
+            showToast(`נשמר דו-קרב חצי גמר · מנצח: ${winnerName}`);
+          }
+        } else if (state.stage === 'FINAL') {
+          const winnerName = computeDuelWinner(n1, t1, status1, n2, t2, status2);
+          const secondName = winnerName === n1 ? n2 : n1;
+          state.finalMatch = {
+            id: Date.now(),
+            f1: n1, t1, s1: status1,
+            f2: n2, t2, s2: status2,
+            winner: winnerName,
+            firstPlace: winnerName,
+            secondPlace: secondName
+          };
+          state.activeTab = 'FINAL';
+          showToast(`הגמר הושלם! מקום 1: ${winnerName}`);
+        }
+
+        saveState();
+        renderAll();
+        resetCurrentRun(state.stage === 'QUAL_1' || (state.stage === 'QUAL_2' && state.extraRoundConfig.pairingMode === 'manual'));
+        prepareStageMatchupIfNeeded();
+      }
+
+      function recordQualResult(name, timeMs, status, roundNum) {
+        const round = roundNum || (state.stage === 'QUAL_2' ? 2 : 1);
+        const entry = {
+          id: Date.now() + Math.random(),
+          name,
+          timeMs,
+          status,
+          round
+        };
+        if (round === 2) {
+          state.qual2Results.push(entry);
+        } else {
+          state.qual1Results.push(entry);
+        }
+      }
+
+      function computeThirdFourthFromSemi() {
+        if (state.semiMatches.length < 2) return;
+        const lA = state.semiMatches[0].loser;
+        const lB = state.semiMatches[1].loser;
+        if (!lA || !lB) return;
+
+        let third = lA;
+        let fourth = lB;
+
+        if (lA.status === 'FINISHED' && lB.status !== 'FINISHED') {
+          third = lA;
+          fourth = lB;
+        } else if (lB.status === 'FINISHED' && lA.status !== 'FINISHED') {
+          third = lB;
+          fourth = lA;
+        } else if (lB.timeMs < lA.timeMs) {
+          third = lB;
+          fourth = lA;
+        }
+
+        state.thirdFourth = { third, fourth };
+      }
+
+      function openExtraRoundConfig() {
+        const maxPairs = Math.max(1, state.round1PairsCount || Math.max(1, Math.ceil(state.roster.length / 2)));
+        el('maxPairsAllowed').textContent = maxPairs;
+        el('extraPairsCount').max = maxPairs;
+        el('extraPairsCount').value = Math.min(state.extraRoundConfig.pairsCount || 1, maxPairs);
+        el('extraPairsMsg').textContent = '';
+
+        const dqList = getDisqualifiedAthletes();
+        const dqBox = el('dqPoolBox');
+        const dqChips = el('dqPoolChips');
+        dqChips.innerHTML = '';
+
+        if (dqList.length) {
+          dqBox.classList.remove('hidden');
+          dqList.forEach((name) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'chip';
+            b.textContent = `+ ${name}`;
+            b.onclick = () => {
+              if (!el('name1Input').value.trim()) {
+                el('name1Input').value = name;
+              } else if (!el('name2Input').value.trim() && !isSingleMode) {
+                el('name2Input').value = name;
+              } else {
+                el('name1Input').value = name;
+              }
+              validateFighters();
+              showToast(`${name} הוזן לשדה`);
+            };
+            dqChips.appendChild(b);
+          });
+        } else {
+          dqBox.classList.add('hidden');
+        }
+
+        el('extraRoundConfig').classList.remove('hidden');
+      }
+
+      function confirmExtraRound() {
+        const maxPairs = Math.max(1, state.round1PairsCount || 1);
+        const val = parseInt(el('extraPairsCount').value, 10);
+
+        if (!val || val < 1) {
+          el('extraPairsMsg').textContent = 'יש להזין מספר זוגות גדול מ-0.';
+          return;
+        }
+        if (val > maxPairs) {
+          el('extraPairsMsg').textContent = `לא ניתן לבחור מספר זוגות הגדול ממספר הזוגות בסבב הראשון (${maxPairs}).`;
+          return;
+        }
+
+        state.stage = 'QUAL_2';
+        state.extraRoundConfig.pairsCount = val;
+        state.extraRoundConfig.queue = [];
+        if (state.extraRoundConfig.pairingMode === 'random') {
+          buildRandomExtraQueue();
+        }
+        state.activeTab = 'QUAL_2';
+        saveState();
+
+        el('extraRoundConfig').classList.add('hidden');
+        resetCurrentRun(state.extraRoundConfig.pairingMode === 'manual');
+        prepareStageMatchupIfNeeded();
+        renderAll();
+        showToast('נפתח סבב מוקדמות נוסף');
+      }
+
+      function startSemiFinal() {
+        const ranked = getCombinedQualRanking();
+        if (ranked.length < 4) {
+          showToast('נדרשים לפחות 4 מתאמנים בדירוג המוקדמות לחצי גמר');
+          return;
+        }
+        state.stage = 'SEMI';
+        state.semiMatches = [];
+        state.thirdFourth = { third: null, fourth: null };
+        state.activeTab = 'SEMI';
+        saveState();
+        resetCurrentRun(false);
+        prepareStageMatchupIfNeeded();
+        renderAll();
+        showToast('שלב חצי הגמר התחיל (1 מול 4, 2 מול 3)');
+      }
+
+      function startFinal() {
+        state.stage = 'FINAL';
+        state.activeTab = 'FINAL';
+        saveState();
+        resetCurrentRun(false);
+        prepareStageMatchupIfNeeded();
+        renderAll();
+        showToast('שלב הגמר התחיל');
+      }
+
+      function renderStageHeader() {
+        const badge = el('stageBadge');
+        const banner = el('stageBanner');
+        const title = el('stageBannerTitle');
+        const sub = el('stageBannerSub');
+
+        badge.textContent = stageLabel(state.stage);
+        badge.classList.toggle('final-stage', state.stage === 'FINAL');
+        banner.classList.toggle('final-banner', state.stage === 'FINAL');
+
+        if (state.stage === 'QUAL_1') {
+          title.textContent = 'שלב מוקדמות – סבב 1';
+          sub.textContent = 'מי שסיים מדורג לפי זמן נמוך; מי שפסל מוצג בתחתית הטבלה עם זמן ורישום פסילה.';
+        } else if (state.stage === 'QUAL_2') {
+          title.textContent = 'שלב מוקדמות – סבב 2';
+          sub.textContent = 'סבב מוקדמות נוסף. טבלת "תוצאות המוקדמות" מציגה דירוג משוקלל של התוצאה הטובה ביותר.';
+        } else if (state.stage === 'SEMI') {
+          title.textContent = 'שלב חצי גמר (נוק-אאוט)';
+          sub.textContent = 'מנצח נקבע אוטומטית (סיים לפני פסל, ואז זמן נמוך). מקומות 3 ו-4 נקבעים בין המפסידים.';
+        } else if (state.stage === 'FINAL') {
+          title.textContent = '🏆 שלב הגמר (נוק-אאוט)';
+          sub.textContent = 'שלב הגמר פעיל – מנצח נקבע אוטומטית לפי סיים מול פסל או הזמן הנמוך ביותר.';
+        }
+      }
+
+      function buildQualTableHtml(entries, titleText) {
+        const ranked = rankEntries(entries);
+        if (!ranked.length) {
+          return `<div class="empty-state">עדיין לא נרשמו תוצאות עבור ${escapeHtml(titleText)}.</div>`;
+        }
+        const rows = ranked.map((r) => {
+          const rankCell = r.rank
+            ? `<span class="rank-badge ${r.rank <= 3 ? 'rank-' + r.rank : ''}">${r.rank}</span>`
+            : `<span class="tag-dq">פסל</span>`;
+          const statusCell = r.status === 'FINISHED'
+            ? `<span class="tag-ok">סיים</span>`
+            : `<span class="tag-dq">פסל</span>`;
+          return `
+            <tr>
+              <td>${rankCell}</td>
+              <td style="font-weight:800;">${escapeHtml(r.name)}</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:800;" dir="ltr">${formatTime(r.timeMs)}</td>
+              <td>${statusCell}</td>
+            </tr>
+          `;
+        }).join('');
+
+        return `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>מתאמן</th>
+                  <th>זמן</th>
+                  <th>סטטוס</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function buildCombinedTableHtml() {
+        const ranked = getCombinedQualRanking();
+        if (!ranked.length) {
+          return `<div class="empty-state">עדיין אין תוצאות משוקללות במוקדמות.</div>`;
+        }
+        const rows = ranked.map((r) => {
+          const rankCell = r.rank
+            ? `<span class="rank-badge ${r.rank <= 3 ? 'rank-' + r.rank : ''}">${r.rank}</span>`
+            : `<span class="tag-dq">פסל</span>`;
+          const statusCell = r.status === 'FINISHED'
+            ? `<span class="tag-ok">סיים (שיא)</span>`
+            : `<span class="tag-dq">פסל</span>`;
+          return `
+            <tr>
+              <td>${rankCell}</td>
+              <td style="font-weight:800;">${escapeHtml(r.name)}</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:800;" dir="ltr">${formatTime(r.timeMs)}</td>
+              <td>${statusCell}</td>
+            </tr>
+          `;
+        }).join('');
+
+        return `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>מתאמן</th>
+                  <th>תוצאה מיטבית</th>
+                  <th>סטטוס</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function buildSemiTableHtml() {
+        if (!state.semiMatches.length && !state.thirdFourth.third && !state.thirdFourth.fourth) {
+          return `<div class="empty-state">עדיין לא נרשמו תוצאות בחצי הגמר.</div>`;
+        }
+        const matchRows = state.semiMatches.map((m, idx) => `
+          <tr>
+            <td>דו-קרב ${idx + 1}</td>
+            <td style="font-weight:800;">${escapeHtml(m.f1)} (${formatTime(m.t1)}) · ${m.s1 === 'FINISHED' ? 'סיים' : 'פסל'}</td>
+            <td style="font-weight:800;">${escapeHtml(m.f2)} (${formatTime(m.t2)}) · ${m.s2 === 'FINISHED' ? 'סיים' : 'פסל'}</td>
+            <td><span class="tag-win">עלה לגמר: ${escapeHtml(m.winner)}</span></td>
+          </tr>
+        `).join('');
+
+        let placementHtml = '';
+        if (state.thirdFourth.third || state.thirdFourth.fourth) {
+          const p3Text = state.thirdFourth.third
+            ? `🥉 מקום 3: ${escapeHtml(state.thirdFourth.third.name)} (${formatTime(state.thirdFourth.third.timeMs)} · ${state.thirdFourth.third.status === 'FINISHED' ? 'סיים' : 'פסל'})`
+            : '🥉 מקום 3: טרם נקבע';
+          const p4Text = state.thirdFourth.fourth
+            ? `4️⃣ מקום 4: ${escapeHtml(state.thirdFourth.fourth.name)} (${formatTime(state.thirdFourth.fourth.timeMs)} · ${state.thirdFourth.fourth.status === 'FINISHED' ? 'סיים' : 'פסל'})`
+            : '4️⃣ מקום 4: טרם נקבע';
+
+          placementHtml = `
+            <div class="placement-box">
+              <div class="placement-line" style="color:#d97706;">${p3Text}</div>
+              <div class="placement-line" style="color:#cbd5e1;">${p4Text}</div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>דו-קרב</th>
+                  <th>מתמודד 1</th>
+                  <th>מתמודד 2</th>
+                  <th>מנצח</th>
+                </tr>
+              </thead>
+              <tbody>${matchRows}</tbody>
+            </table>
+          </div>
+          ${placementHtml}
+        `;
+      }
+
+      function buildFinalTableHtml() {
+        const standings = getFullFinalStandings();
+        if (!standings.length) {
+          return `<div class="empty-state">עדיין לא נרשמו תוצאות לדירוג הסופי.</div>`;
+        }
+
+        const rows = standings.map((s) => {
+          const badgeClass = s.place <= 3 ? `rank-${s.place}` : '';
+          const statusTag = s.status === 'FINISHED'
+            ? `<span class="tag-ok">סיים</span>`
+            : `<span class="tag-dq">פסל</span>`;
+          const placeLabel = s.place === 1
+            ? `🏆 ${escapeHtml(s.name)}`
+            : escapeHtml(s.name);
+
+          return `
+            <tr>
+              <td><span class="rank-badge ${badgeClass}">${s.place}</span></td>
+              <td style="font-weight:${s.place <= 4 ? '900' : '700'};color:${s.place === 1 ? 'var(--gold)' : 'var(--text)'};">${placeLabel}</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:800;" dir="ltr">${formatTime(s.timeMs)}</td>
+              <td>${statusTag} <span style="font-size:0.74rem;color:var(--text-muted);">${escapeHtml(s.note)}</span></td>
+            </tr>
+          `;
+        }).join('');
+
+        return `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>מקום</th>
+                  <th>מתאמן</th>
+                  <th>זמן</th>
+                  <th>סטטוס ופירוט</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderTabsAndTable() {
+        const tabs = [
+          { id: 'QUAL_1', label: 'מוקדמות 1' },
+          { id: 'QUAL_2', label: 'מוקדמות 2' },
+          { id: 'COMBINED', label: 'תוצאות המוקדמות' },
+          { id: 'SEMI', label: 'חצי גמר' },
+          { id: 'FINAL', label: 'גמר ודירוג סופי' }
+        ];
+
+        const tabsEl = el('tableTabs');
+        tabsEl.innerHTML = tabs.map((t) => `
+          <button type="button" class="tab-btn ${state.activeTab === t.id ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>
+        `).join('');
+
+        tabsEl.querySelectorAll('.tab-btn').forEach((btn) => {
+          btn.onclick = () => {
+            state.activeTab = btn.dataset.tab;
+            saveState();
+            renderTabsAndTable();
+          };
+        });
+
+        const container = el('activeTableContainer');
+        if (state.activeTab === 'QUAL_1') container.innerHTML = buildQualTableHtml(state.qual1Results, 'מוקדמות 1');
+        else if (state.activeTab === 'QUAL_2') container.innerHTML = buildQualTableHtml(state.qual2Results, 'מוקדמות 2');
+        else if (state.activeTab === 'COMBINED') container.innerHTML = buildCombinedTableHtml();
+        else if (state.activeTab === 'SEMI') container.innerHTML = buildSemiTableHtml();
+        else if (state.activeTab === 'FINAL') container.innerHTML = buildFinalTableHtml();
+      }
+
+      function buildWhatsappText() {
+        const lines = ['⚡ *תוצאות נינג\'ה ספיד – דו-קרב* ⚡', ''];
+
+        const q1 = rankEntries(state.qual1Results);
+        if (q1.length) {
+          lines.push('*📋 מוקדמות 1:*');
+          q1.forEach((r) => {
+            const st = r.status === 'FINISHED' ? 'סיים' : 'פסל';
+            const pos = r.rank ? `${r.rank}.` : 'פסול:';
+            lines.push(`${pos} ${r.name} – ${formatTime(r.timeMs)} (${st})`);
+          });
+          lines.push('');
+        }
+
+        const q2 = rankEntries(state.qual2Results);
+        if (q2.length) {
+          lines.push('*📋 מוקדמות 2:*');
+          q2.forEach((r) => {
+            const st = r.status === 'FINISHED' ? 'סיים' : 'פסל';
+            const pos = r.rank ? `${r.rank}.` : 'פסול:';
+            lines.push(`${pos} ${r.name} – ${formatTime(r.timeMs)} (${st})`);
+          });
+          lines.push('');
+        }
+
+        const comb = getCombinedQualRanking();
+        if (comb.length) {
+          lines.push('*📊 תוצאות המוקדמות (משוקלל):*');
+          comb.forEach((r) => {
+            const st = r.status === 'FINISHED' ? 'סיים' : 'פסל';
+            const pos = r.rank ? `${r.rank}.` : 'פסול:';
+            lines.push(`${pos} ${r.name} – ${formatTime(r.timeMs)} (${st})`);
+          });
+          lines.push('');
+        }
+
+        if (state.semiMatches.length || state.thirdFourth.third || state.thirdFourth.fourth) {
+          lines.push('*🏅 חצי גמר:*');
+          state.semiMatches.forEach((m, i) => {
+            lines.push(`דו-קרב ${i + 1}: ${m.f1} (${formatTime(m.t1)}) מול ${m.f2} (${formatTime(m.t2)}) ← מנצח: *${m.winner}*`);
+          });
+          if (state.thirdFourth.third) {
+            lines.push(`🥉 מקום 3: *${state.thirdFourth.third.name}* (${formatTime(state.thirdFourth.third.timeMs)})`);
+          }
+          if (state.thirdFourth.fourth) {
+            lines.push(`4️⃣ מקום 4: *${state.thirdFourth.fourth.name}* (${formatTime(state.thirdFourth.fourth.timeMs)})`);
+          }
+          lines.push('');
+        }
+
+        const standings = getFullFinalStandings();
+        if (standings.length) {
+          lines.push('*🏆 דירוג סופי מלא:*');
+          standings.forEach((s) => {
+            const medal = s.place === 1 ? '🥇 ' : s.place === 2 ? '🥈 ' : s.place === 3 ? '🥉 ' : '';
+            const st = s.status === 'FINISHED' ? 'סיים' : 'פסל';
+            lines.push(`${medal}מקום ${s.place}: *${s.name}* – ${formatTime(s.timeMs)} (${st})`);
+          });
+        }
+
+        return lines.join('\n').trim();
+      }
+
+      function openSummaryScreen() {
+        state.isFinishedScreen = true;
+        saveState();
+        el('arenaView').classList.add('hidden');
+        el('summaryView').classList.remove('hidden');
+
+        el('allSummaryTables').innerHTML = `
+          <div style="margin-bottom:14px;">
+            <div style="font-weight:800;margin-bottom:6px;">מוקדמות 1</div>
+            ${buildQualTableHtml(state.qual1Results, 'מוקדמות 1')}
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-weight:800;margin-bottom:6px;">מוקדמות 2</div>
+            ${buildQualTableHtml(state.qual2Results, 'מוקדמות 2')}
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-weight:800;margin-bottom:6px;">תוצאות המוקדמות (משוקלל)</div>
+            ${buildCombinedTableHtml()}
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-weight:800;margin-bottom:6px;">חצי גמר</div>
+            ${buildSemiTableHtml()}
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:6px;">גמר ודירוג סופי מלא</div>
+            ${buildFinalTableHtml()}
+          </div>
+        `;
+
+        el('whatsappPreview').textContent = buildWhatsappText();
+      }
+
+      function closeSummaryScreen() {
+        state.isFinishedScreen = false;
+        saveState();
+        el('summaryView').classList.add('hidden');
+        el('arenaView').classList.remove('hidden');
+      }
+
+      function renderAll() {
+        renderStageHeader();
+        renderChips();
+        renderTabsAndTable();
+        if (state.isFinishedScreen) {
+          openSummaryScreen();
+        }
+      }
+
+      el('modeDuelBtn').onclick = () => setSingleMode(false);
+      el('modeSingleBtn').onclick = () => setSingleMode(true);
+      el('name1Input').addEventListener('input', validateFighters);
+      el('name2Input').addEventListener('input', validateFighters);
+      el('mic1Btn').onclick = () => toggleMic(1);
+      el('mic2Btn').onclick = () => toggleMic(2);
+
+      el('voiceModalSaveBtn').onclick = () => {
+        if (modalTargetIdx) {
+          applyVoiceName(modalTargetIdx, el('voiceModalInput').value);
+        }
+        closeVoiceFallbackModal();
+      };
+      el('voiceModalCloseBtn').onclick = closeVoiceFallbackModal;
+      el('voiceModalInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          el('voiceModalSaveBtn').click();
+        }
+      });
+
+      el('startBtn').onclick = startRun;
+      el('stopBtn').onclick = stopRun;
+      el('restartDuelBtn').onclick = () => resetCurrentRun(false);
+
+      el('acceptRunBtn').onclick = openAssignmentPanel;
+      el('cancelRunBtn').onclick = () => {
+        resetCurrentRun(false);
+        showToast('תוצאות הדו-קרב בוטלו');
+      };
+      el('saveAssignedBtn').onclick = saveAssignedResult;
+
+      el('btnExtraRound').onclick = openExtraRoundConfig;
+      el('modeRandomPairsBtn').onclick = () => {
+        state.extraRoundConfig.pairingMode = 'random';
+        el('modeRandomPairsBtn').classList.add('active');
+        el('modeManualPairsBtn').classList.remove('active');
+        saveState();
+      };
+      el('modeManualPairsBtn').onclick = () => {
+        state.extraRoundConfig.pairingMode = 'manual';
+        el('modeManualPairsBtn').classList.add('active');
+        el('modeRandomPairsBtn').classList.remove('active');
+        saveState();
+      };
+      el('confirmExtraRoundBtn').onclick = confirmExtraRound;
+      el('cancelExtraRoundBtn').onclick = () => el('extraRoundConfig').classList.add('hidden');
+
+      el('btnSemiFinal').onclick = startSemiFinal;
+      el('btnFinal').onclick = startFinal;
+      el('btnFinish').onclick = openSummaryScreen;
+      el('backToArenaBtn').onclick = closeSummaryScreen;
+
+      el('copyWhatsappBtn').onclick = async () => {
+        const text = buildWhatsappText();
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('התוצאות הועתקו לוואטסאפ');
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('התוצאות הועתקו לוואטסאפ');
+        }
+      };
+
+      el('resetAllBtn').onclick = () => {
+        if (!confirm('לאפס את כל התחרות והתוצאות?')) return;
+        stopActiveRecognition();
+        localStorage.removeItem(STORAGE_KEY);
+        state = createDefaultState();
+        isSingleMode = false;
+        resetCurrentRun(true);
+        renderAll();
+        showToast('התחרות אופסה');
+      };
+
+      requestWakeLock();
+      renderAll();
+      prepareStageMatchupIfNeeded();
+    })();
+  </script>
+</body>
+</html>
